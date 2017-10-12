@@ -4,13 +4,22 @@
 \alias{julia_setup}
 \title{Do initial setup for the JuliaCall package.}
 \usage{
-julia_setup(verbose = TRUE, force = FALSE)
+julia_setup(JULIA_HOME = NULL, verbose = TRUE, force = FALSE,
+  useRCall = TRUE)
 }
 \arguments{
+\item{JULIA_HOME}{the path to julia binary,
+if not set, JuliaCall will look at the global option JULIA_HOME,
+if the global option is not set, JuliaCall will try to use
+the julia in path.}
+
 \item{verbose}{whether to print out detailed information
 about \code{julia_setup}.}
 
 \item{force}{whether to force julia_setup to execute again.}
+
+\item{useRCall}{whether or not you want to use RCall.jl in julia,
+which is an amazing package to access R in julia.}
 }
 \value{
 The julia interface, which is an environment with the necessary methods
@@ -21,10 +30,8 @@ The julia interface, which is an environment with the necessary methods
 }
 \examples{
 
-if (julia_check()) {
-  \dontrun{ ## julia_setup is quite time consuming
+\dontrun{ ## julia_setup is quite time consuming
   julia <- julia_setup()
-  }
 }
 
 }

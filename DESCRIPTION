@@ -1,7 +1,8 @@
 Package: JuliaCall
 Type: Package
 Title: Seamless Integration Between R and 'Julia'
-Version: 0.7.3
+Version: 0.9.3
+Date: 2017-10-11
 Authors@R: person("Changcheng Li", email = "cxl508@psu.edu",
     role = c("aut", "cre"))
 Description: Provides an R interface to 'Julia',
@@ -21,10 +22,11 @@ LazyData: true
 Imports: inline, utils
 RoxygenNote: 6.0.1
 SystemRequirements: Julia >= 0.5.0, RCall.jl
-Suggests: testthat
+Suggests: testthat, knitr, rmarkdown
+VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2017-08-31 01:54:35 UTC; lichangcheng
+Packaged: 2017-10-12 02:26:07 UTC; lichangcheng
 Author: Changcheng Li [aut, cre]
 Maintainer: Changcheng Li <cxl508@psu.edu>
 Repository: CRAN
-Date/Publication: 2017-09-01 11:53:09 UTC
+Date/Publication: 2017-10-12 14:03:34 UTC

@@ -14,12 +14,8 @@ julia_help(fname)
 }
 \examples{
 
-if (julia_check()) {
-  \dontrun{ ## julia_setup is quite time consuming
-  julia <- julia_setup()
-
+\dontrun{ ## julia_setup is quite time consuming
   julia_help("sqrt")
-  }
 }
 
 }
