@@ -56,3 +56,54 @@
 # JuliaCall 0.9.2.9000
 
 * New Julia display system `plotsViewer()`, which integrates better into R.
+* Fits several bugs in `JuliaCall`, like removing using of depreated function.
+* Improve display systems of RMarkdown and Jupyter R Notebook.
+
+# JuliaCall 0.9.3
+
+* Second release on CRAN.
+
+# JuliaCall 0.9.3.9000
+
+* Performance improvements for dot notation function call.
+
+# JuliaCall 0.10.0.9000
+
+* Implementation of `JuliaArray`.
+
+# JuliaCall 0.10.1.9000
+
+* Bug fix in `JuliaArray`.
+* Do not convert Tuple any more.
+
+# JuliaCall 0.10.2.9000
+
+* Important bug fix in `JuliaObject`, for more detail, see github issue #15, issue #12 and #13 are related.
+
+# JuliaCall 0.10.3.9000
+
+* Dispatching for `JuliaObject` and `JuliaArray`.
+
+# JuliaCall 0.10.4.9000
+
+* Do not use `JuliaArray`, the discussion is in #16.
+* `JuliaObject` is an S4 class now, which should be more robust.
+
+# JuliaCall 0.10.5.9000
+
+* Implement generics for `JuliaObject`, and fix many small bugs.
+* Fix the bug of the conversion of AbstractArray{Any}.
+* Julia tuple converts to R S3 class of JuliaTuple based on list.
+* Add `fields`, `field` and `field<-` function for JuliaObjects.
+
+# JuliaCall 0.10.6.9000
+
+* Use R6 for the implementation of `JuliaObject`.
+  It's lightweight, faster, and safer.
+
+# JuliaCall 0.11.0.9000
+
+* Remove deprecated `julia_eval_string`.
+* Improve *JuliaCall* RMarkdown engine.
+  The display system should work for all kinds of documents that rmarkdown supports.
+* Should use older version of RCall with older version of R.

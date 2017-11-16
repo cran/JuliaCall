@@ -1,8 +1,8 @@
 Package: JuliaCall
 Type: Package
 Title: Seamless Integration Between R and 'Julia'
-Version: 0.9.3
-Date: 2017-10-11
+Version: 0.11.1
+Date: 2017-11-15
 Authors@R: person("Changcheng Li", email = "cxl508@psu.edu",
     role = c("aut", "cre"))
 Description: Provides an R interface to 'Julia',
@@ -19,14 +19,14 @@ URL: https://github.com/Non-Contradiction/JuliaCall
 BugReports: https://github.com/Non-Contradiction/JuliaCall/issues
 Encoding: UTF-8
 LazyData: true
-Imports: inline, utils
+Imports: inline, utils, R6
 RoxygenNote: 6.0.1
 SystemRequirements: Julia >= 0.5.0, RCall.jl
 Suggests: testthat, knitr, rmarkdown
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2017-10-12 02:26:07 UTC; lichangcheng
+Packaged: 2017-11-16 18:45:02 UTC; lichangcheng
 Author: Changcheng Li [aut, cre]
 Maintainer: Changcheng Li <cxl508@psu.edu>
 Repository: CRAN
-Date/Publication: 2017-10-12 14:03:34 UTC
+Date/Publication: 2017-11-16 21:56:40 UTC

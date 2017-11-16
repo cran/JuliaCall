@@ -46,11 +46,11 @@ julia_setup <- function(JULIA_HOME = NULL, verbose = TRUE, force = FALSE, useRCa
     ## Thank to randy3k for pointing this out,
     ## `RCall` needs to be precompiled with the current R.
 
-    julia_line(paste(system.file("julia/RCallprepare.jl", package = "JuliaCall"), R.home()),
+    julia_line(paste(system.file("julia/RCallprepare.jl", package = "JuliaCall"), R.home(), getRversion()),
                stderr = FALSE)
 
-    julia_line("-e \"pkg = string(:Suppressor); if Pkg.installed(pkg) == nothing Pkg.add(pkg) end; using Suppressor\"",
-           stderr = FALSE)
+    # julia_line("-e \"pkg = string(:Suppressor); if Pkg.installed(pkg) == nothing Pkg.add(pkg) end; using Suppressor\"",
+    #        stderr = FALSE)
 
     .julia$config <- file.path(dirname(.julia$bin_dir), "share", "julia", "julia-config.jl")
     .julia$cppargs <- julia_line(paste0(.julia$config, " --cflags"), stdout = TRUE)
@@ -141,7 +141,13 @@ julia_setup <- function(JULIA_HOME = NULL, verbose = TRUE, force = FALSE, useRCa
         }
     }
 
-    reg.finalizer(.julia, function(e){message("Julia exit."); .julia$cmd("exit()")}, onexit = TRUE)
+    reg.finalizer(.julia,
+                  function(e){
+                      message("Julia exit.");
+                      .julia$cmd("exit()")
+                      dyn.unload(.julia$dll_file)
+                      },
+                  onexit = TRUE)
 
     .julia$cmd(paste0('ENV["R_HOME"] = "', R.home(), '"'))
 
@@ -202,6 +208,9 @@ julia_setup <- function(JULIA_HOME = NULL, verbose = TRUE, force = FALSE, useRCa
     ## a dirty fix for Plots GR backend
     julia_command('ENV["GKSwstype"]="pdf";')
     julia_command('ENV["GKS_FILEPATH"] = tempdir();')
+
+    ## Suppress pyplot gui
+    julia_command('ENV["MPLBACKEND"] = "Agg";')
 
     invisible(julia)
 }

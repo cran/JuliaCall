@@ -11,13 +11,12 @@ JuliaCall for Seamless Integration of R and Julia
 -   [Installation](#installation)
 -   [Basic Usage](#basic-usage)
 -   [How to Get Help?](#how-to-get-help)
--   [Gallery of JuliaCall](#gallery-of-juliacall)
 -   [JuliaCall for R Package Developers](#juliacall-for-r-package-developers)
 -   [Suggestion and Issue Reporting](#suggestion-and-issue-reporting)
 
-Package JuliaCall is an R interface to 'Julia', which is a high-level, high-performance dynamic programming language for numerical computing, see <https://julialang.org/> for more information.
+Package JuliaCall is an R interface to 'Julia', which is a high-level, high-performance dynamic programming language for numerical computing, see <https://julialang.org/> for more information. Below is an image for [Mandelbrot set](https://en.wikipedia.org/wiki/Mandelbrot_set). JuliaCall brings **more than 100 times speedup** of the calculation! See <https://github.com/Non-Contradiction/JuliaCall/tree/master/example/mandelbrot> for more information.
 
-![](https://non-contradiction.github.io/JuliaCall/articles/JuliaCall.png)
+![](https://non-contradiction.github.io/JuliaCall/articles/mandelbrot.png)
 
 Installation
 ------------
@@ -44,7 +43,7 @@ library(JuliaCall)
 
 julia <- julia_setup()
 #> Julia at location /Applications/Julia-0.6.app/Contents/Resources/julia/bin will be used.
-#> Julia version 0.6.0 found.
+#> Julia version 0.6.1 found.
 #> Julia initiation...
 #> Finish Julia initiation.
 #> Loading setup script for JuliaCall...
@@ -90,7 +89,7 @@ julia_help("sqrt")
 julia_install_package("Optim")
 julia_install_package_if_needed("Optim")
 julia_installed_package("Optim")
-#> [1] "0.9.3"
+#> [1] "0.10.1"
 julia_library("Optim")
 ```
 
@@ -111,11 +110,6 @@ julia_help("sqrt")
 -   The GitHub Pages for this repository host the documentation for the development version of `JuliaCall`: <https://non-contradiction.github.io/JuliaCall/>.
 
 -   And you are more than welcome to contact me about `JuliaCall` at <lch34677@gmail.com> or <cxl508@psu.edu>.
-
-Gallery of JuliaCall
---------------------
-
-From the GitHub Pages for this repository you can find the gallery for `JuliaCall`: <https://non-contradiction.github.io/JuliaCall/articles/Gallery.html>.
 
 JuliaCall for R Package Developers
 ----------------------------------

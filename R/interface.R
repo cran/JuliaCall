@@ -12,6 +12,9 @@
 #'   or one of the options "R", "Julia" and "None".
 #' @param show_value whether to display julia return value or not.
 #'
+#' @details Note that named arguments will be discarded if the call uses dot notation,
+#'   for example, "sqrt.".
+#'
 #' @examples
 #'
 #' \dontrun{ ## julia_setup is quite time consuming
@@ -48,17 +51,22 @@ julia_do.call <- julia$do.call <- function(func_name, arg_list, need_return = c(
     if (!.julia$initialized) {
         julia_setup()
     }
+
+    ## This function is used to reset the RMarkdown output,
+    ## see RMarkdown.R for more details.
+    output_reset()
+
     args <- separate_arguments(arglist = arg_list)
     jcall <- list(fname = func_name,
                   named_args = args$named,
                   unamed_args = args$unamed,
                   need_return = need_return,
                   show_value = show_value)
-    rmd <- identical(need_return, "None") && show_value && .julia$rmd
-    if (rmd) {
-        return(rmd_capture(jcall))
-    }
     r <- .julia$do.call_(jcall)
+
+    rmd <- identical(need_return, "None") && show_value && .julia$rmd
+    if (rmd) return(output_return())
+
     if (inherits(r, "error")) stop(r)
     if (!identical(need_return, "None")) return(r)
     invisible(r)
