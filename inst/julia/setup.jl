@@ -1,3 +1,4 @@
+Base.load_juliarc()
 module JuliaCall
 
 # gc_enable(false)
@@ -6,7 +7,7 @@ module JuliaCall
 
 # if Pkg.installed("RCall") == nothing Pkg.add("RCall") end
 
-include("./suppress.jl")
+using Suppressor
 
 @suppress begin
     using RCall
@@ -21,7 +22,6 @@ include("REPLhook.jl")
 include("incomplete_console.jl")
 include("convert.jl")
 include("JuliaObject.jl")
-## include("JuliaArray.jl")
 include("asR.jl")
 include("dispatch.jl")
 

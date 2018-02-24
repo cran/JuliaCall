@@ -1,10 +1,14 @@
 Package: JuliaCall
 Type: Package
 Title: Seamless Integration Between R and 'Julia'
-Version: 0.11.1
-Date: 2017-11-15
-Authors@R: person("Changcheng Li", email = "cxl508@psu.edu",
-    role = c("aut", "cre"))
+Version: 0.12.1
+Date: 2018-2-23
+Authors@R: c(
+    person("Changcheng", "Li", , "cxl508@psu.edu", c("aut", "cre")),
+    person("Randy", "Lai", role = "ctb"),
+    person("Dmitri", "Grominski", role = "ctb"),
+    person("Nagi", "Teramo", role = "ctb")
+    )
 Description: Provides an R interface to 'Julia',
     which is a high-level, high-performance dynamic programming language
     for numerical computing, see <https://julialang.org/> for more information.
@@ -13,20 +17,25 @@ Description: Provides an R interface to 'Julia',
     any R function with automatic type conversion. Using the low level interface,
     you could deal with C-level SEXP directly while enjoying the convenience of
     using a high-level programming language like 'Julia'.
-Depends: R (>= 3.2.0)
+Depends: R (>= 3.4.0)
 License: MIT + file LICENSE
 URL: https://github.com/Non-Contradiction/JuliaCall
 BugReports: https://github.com/Non-Contradiction/JuliaCall/issues
 Encoding: UTF-8
 LazyData: true
-Imports: inline, utils, R6
+Imports: utils, R6, Rcpp (>= 0.12.7)
 RoxygenNote: 6.0.1
-SystemRequirements: Julia >= 0.5.0, RCall.jl
+LinkingTo: Rcpp
+NeedsCompilation: yes
+ByteCompile: yes
+SystemRequirements: Julia >= 0.6.0, RCall.jl
 Suggests: testthat, knitr, rmarkdown
 VignetteBuilder: knitr
-NeedsCompilation: no
-Packaged: 2017-11-16 18:45:02 UTC; lichangcheng
-Author: Changcheng Li [aut, cre]
+Packaged: 2018-02-23 22:51:40 UTC; lichangcheng
+Author: Changcheng Li [aut, cre],
+  Randy Lai [ctb],
+  Dmitri Grominski [ctb],
+  Nagi Teramo [ctb]
 Maintainer: Changcheng Li <cxl508@psu.edu>
 Repository: CRAN
-Date/Publication: 2017-11-16 21:56:40 UTC
+Date/Publication: 2018-02-24 21:32:42 UTC
