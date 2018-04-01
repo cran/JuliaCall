@@ -2,9 +2,11 @@
 #'
 #' \code{julia_setup} does the initial setup for the JuliaCall package.
 #'
-#' @param JULIA_HOME the path to julia binary,
+#' @param JULIA_HOME the file folder which contains julia binary,
 #'     if not set, JuliaCall will look at the global option JULIA_HOME,
-#'     if the global option is not set, JuliaCall will try to use
+#'     if the global option is not set,
+#'     JuliaCall will then look at the environmental variable JULIA_HOME,
+#'     if still not found, JuliaCall will try to use
 #'     the julia in path.
 #' @param verbose whether to print out detailed information
 #'     about \code{julia_setup}.
@@ -69,7 +71,9 @@ julia_setup <- function(JULIA_HOME = NULL, verbose = TRUE, force = FALSE, useRCa
             stop("cmd should be a character scalar.")
         }
         if (!juliacall_cmd(cmd)) {
-            stop(paste0("Error happens when you try to execute command ", cmd, " in Julia."))
+            stop(paste0("Error happens when you try to execute command ", cmd, " in Julia.
+                        To have more helpful error messages,
+                        you could considering running the command in Julia directly"))
         }
     }
 
@@ -144,6 +148,6 @@ julia_setup <- function(JULIA_HOME = NULL, verbose = TRUE, force = FALSE, useRCa
 install_dependency <- function(){
     ## `RCall` needs to be precompiled with the current R.
     julia_line(c(system.file("julia/install_dependency.jl", package = "JuliaCall"),
-                 R.home(), as.character(getRversion())),
+                 R.home()),
                stderr = FALSE)
 }
