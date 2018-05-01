@@ -1,3 +1,22 @@
+# JuliaCall 0.12.4.9000
+
+* Add `autowrap`, which can generates automatic wrappers for `julia` types.
+* Fix bugs in passing arguments in `julia_docall` and `julia_call`.
+
+# JuliaCall 0.12.3.9000
+
+* Fix the issue in displaying `JuliaObject`, especially in `Rmd` documents. Fix #43.
+* `x$name` could be used to get access to `field(x, name)` for `JuliaObject`.
+
+# JuliaCall 0.12.2.9000
+
+* Speed up `RCall` checking.
+* Use some tricks to get around `julia` issue #14577.
+
+# JuliaCall 0.12.2
+
+* Fifth release on CRAN.
+
 # JuliaCall 0.12.1.9000
 
 * Clearer documentation for `JULIA_HOME`.

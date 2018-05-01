@@ -9,6 +9,13 @@ module JuliaCall
 
 using Suppressor
 
+if !is_windows()
+    @suppress_err begin
+        @eval Base JULIA_HOME = joinpath(dirname(JULIA_HOME), "bin")
+        @eval Base julia_cmd() = julia_cmd(joinpath(JULIA_HOME, julia_exename()))
+    end
+end
+
 @suppress_err begin
     using RCall
 end
@@ -104,6 +111,12 @@ end
 
 function str_typeof(x)
     string(typeof(x))
+end
+
+function show_string(x)
+    buf = IOBuffer()
+    show(IOContext(buf, :limit=>true), x)
+    return String(take!(buf))
 end
 
 end

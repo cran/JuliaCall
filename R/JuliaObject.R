@@ -1,10 +1,13 @@
 #' @import R6
 juliaobject <- R6::R6Class("JuliaObject",
                            public = list(
-                               initialize = function(id = 0L){
+                               initialize = function(id = 0L, type = "Regular"){
                                    if (private$locked) return(invisible(self))
                                    private$id <- id
                                    private$locked <- TRUE
+                                   if (!identical(type, "Regular")) {
+                                       extendJuliaObj(self, type)
+                                   }
                                },
                                getID = function(){
                                    private$id
@@ -12,8 +15,10 @@ juliaobject <- R6::R6Class("JuliaObject",
                                print = function(...){
                                    cat(paste0("Julia Object of type ",
                                               julia_call("JuliaCall.str_typeof", self),
-                                              ".\n"))
-                                   julia_call("show", self, need_return = FALSE)
+                                              ".\n",
+                                              julia_call("JuliaCall.show_string", self)))
+                                   #julia_call("show", self, need_return = FALSE)
+
                                    invisible(self)
                                }
                                # finalize = function() {
@@ -22,6 +27,7 @@ juliaobject <- R6::R6Class("JuliaObject",
                                # }
                            ),
                            private = list(id = 0L, locked = FALSE),
+                           lock_objects = FALSE,
                            lock_class = TRUE,
                            cloneable = FALSE)
 
@@ -37,7 +43,7 @@ juliaobject <- R6::R6Class("JuliaObject",
 #'
 #' @examples
 #'
-#' \dontrun{ ## julia_setup is quite time consuming
+#' \donttest{ ## julia_setup is quite time consuming
 #'   a <- JuliaObject(1)
 #' }
 #'
@@ -97,4 +103,11 @@ field.JuliaObject <- function(object, name){
 `field<-.JuliaObject` <- function(object, name, value){
     julia_call("JuliaCall.setfield1!", object, as.symbol(name), value)
     object
+}
+
+#' @export
+`$.JuliaObject` <- function(x, name){
+    if (as.character(substitute(name)) %in% names(x))
+        NextMethod(x, name)
+    else field(x, name)
 }
