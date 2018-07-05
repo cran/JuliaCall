@@ -42,19 +42,33 @@ julia_setup <- function(JULIA_HOME = NULL, verbose = TRUE, force = FALSE, useRCa
 
     .julia$VERSION <- julia_line(c("-e", "print(VERSION)"), stdout = TRUE)
 
+    if (newer("0.5.3", .julia$VERSION)) {
+        stop(paste0("Julia version ", .julia$VERSION, " at location ", JULIA_HOME, " is found.",
+                    " But the version is too old and is not supported. Please install current release julia from https://julialang.org/downloads/ to use JuliaCall"))
+    }
+
     if (verbose) message(paste0("Julia version ",
                                 .julia$VERSION,
                                 " at location ",
                                 JULIA_HOME,
                                 " will be used."))
 
-    .julia$dll_file <- julia_line(c("-e", "print(Libdl.dlpath(\"libjulia\"))"), stdout = TRUE)
+    dll_command <- system.file("julia/libjulia.jl", package = "JuliaCall")
+    .julia$dll_file <- julia_line(dll_command, stdout = TRUE)
 
-    if (verbose) message("Julia initiation...")
+    if (!is.character(.julia$dll_file)) {
+        stop("libjulia cannot be located.")
+    }
+
+    if (!isTRUE(file.exists(.julia$dll_file))) {
+        stop("libjulia located at ", .julia$dll_file, " is not a valid file.")
+    }
+
+    ## if (verbose) message("Julia initiation...")
 
     if (.Platform$OS.type == "windows") {
         libm <- julia_line(c("-e", "print(Libdl.dlpath(Base.libm_name))"), stdout = TRUE)
-        dyn.load(libm, DLLpath= .julia$bin_dir)
+        dyn.load(libm, DLLpath = .julia$bin_dir)
 
         # following is required to load dll dependencies from JULIA_HOME
         cur_dir <- getwd()
@@ -64,7 +78,7 @@ julia_setup <- function(JULIA_HOME = NULL, verbose = TRUE, force = FALSE, useRCa
 
     juliacall_initialize(.julia$dll_file)
 
-    if (verbose) message("Finish Julia initiation.")
+    ## if (verbose) message("Finish Julia initiation.")
 
     .julia$cmd <- function(cmd){
         if (!(length(cmd) == 1 && is.character(cmd))) {
@@ -118,9 +132,19 @@ julia_setup <- function(JULIA_HOME = NULL, verbose = TRUE, force = FALSE, useRCa
 
     .julia$initialized <- TRUE
 
+    # This part of code has all been integrated into setup.jl script
+    #
+    # display_needed <- julia_eval("length(Base.Multimedia.displays)") < 2
+    #
+    # # print(display_needed)
+    #
+    # if (display_needed) {
+    #     julia_command("Base.pushdisplay(JuliaCall.basic_display);")
+    # }
+
     if (useRCall) {
         julia$command("using RCall")
-        julia$command("Base.atreplinit(JuliaCall.setup_repl)")
+        julia$command("Base.atreplinit(JuliaCall.setup_repl);")
     }
 
     if (interactive()) {

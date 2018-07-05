@@ -1,3 +1,41 @@
+# JuliaCall 0.13.2.9000
+
+* Use more robust way to locate libjulia, fix #29 and #57.
+* A simple interface to get access to `JuliaCall` from `Rcpp`.
+* Bug correction for `as.vector.JuliaObject`.
+* Bug correction for `as.double.JuliaObject`.
+* Add error message that old version julia is not supported.
+* Add error message when libjulia located is not a valid file.
+
+# JuliaCall 0.13.1.9000
+
+* Various small bug fixes.
+* `JuliaObject` supports multiple index.
+* Implementation of `mean`, `determinant` and `solve` generics for `JuliaObject`.
+* Implementation of `c` and `t` generics for `JuliaObject`.
+* Implementation of `aperm`, `dim<-` and `as.vector` generics for `JuliaObject`.
+
+# JuliaCall 0.13.0.9000
+
+* Important bug fixes.
+* Reduce the number of messages from `julia_setup(verbose = TRUE)`.
+* Add `need_return` argument to `julia_eval`, now there is a possibility to return
+  the result as an `JuliaObject`, which is convenient for many use cases requiring
+  an R object corresponding to a julia object.
+* Bug fixing for unary operators on `JuliaObject`.
+* Implement `rep.JuliaObject`.
+* Important bug fix for assign of `JuliaObject`.
+* New experimental `assign!` to match behavior for assign in R and use it for `JuliaObject`.
+* Experimental `JuliaPlain` idea to alleviate the problem that R dispatches only on the first argument,
+  make `ifelse` possible to work for `JuliaObject`.
+* Fix display issue #54 when using `JuliaCall` from julia and `RCall.jl`.
+* Speed up the loading a little.
+* Array related methods `dim.JuliaObject`, `is.array.JuliaObject` and `is.matrix.JuliaObject`.
+
+# JuliaCall 0.13.0
+
+* Sixth release on CRAN.
+
 # JuliaCall 0.12.4.9000
 
 * Add `autowrap`, which can generates automatic wrappers for `julia` types.

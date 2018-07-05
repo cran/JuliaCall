@@ -12,7 +12,7 @@ testJuliaObjectGeneric <- function(generic, narg,
     if (narg == 1) {
         for (i in 1:times) {
             x <- random_vec(dim = dim, min = min, max = max)[, 1]
-            expect_equal(generic(JuliaObject(x)), generic(x))
+            expect_equal(c(generic(JuliaObject(x))), generic(x))
         }
     }
     else {
@@ -20,9 +20,9 @@ testJuliaObjectGeneric <- function(generic, narg,
             xy <- random_vec(n = 2, dim = dim, min = min, max = max)
             x <- xy[, 1]
             y <- xy[, 2]
-            expect_equal(generic(JuliaObject(x), JuliaObject(y)), generic(x, y))
-            expect_equal(generic(JuliaObject(x), y), generic(x, y))
-            expect_equal(generic(x, JuliaObject(y)), generic(x, y))
+            expect_equal(c(generic(JuliaObject(x), JuliaObject(y))), generic(x, y))
+            expect_equal(c(generic(JuliaObject(x), y)), generic(x, y))
+            expect_equal(c(generic(x, JuliaObject(y))), generic(x, y))
         }
     }
 }
@@ -69,6 +69,10 @@ test_that("test of Arith group", {
     testJuliaObjectGeneric(`%%`, 2)
     testJuliaObjectGeneric(`%/%`, 2)
     testJuliaObjectGeneric(`/`, 2)
+
+    ## Need to test for + and - as unary operators
+    testJuliaObjectGeneric(`+`, 1)
+    testJuliaObjectGeneric(`-`, 1)
 })
 
 test_that("test of Logic group", {

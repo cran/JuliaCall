@@ -5,8 +5,20 @@ length.JuliaObject <- function(x){
              error = function(e) 1
     )
 }
+
+as_index <- function(i){
+    if (is.logical(i)) return(i)
+    as.integer(i)
+}
+
+as_indexes <- function(ii){
+    lapply(ii, as_index)
+}
+
 #' @export
-`[.JuliaObject` <- function(x, i) julia_call("getindex", x, as.integer(i))
+`[.JuliaObject` <- function(x, ...){
+    julia_do.call("getindex", c(list(x), as_indexes(list(...))))
+}
 #' @export
 `[[.JuliaObject` <- function(x, i, exact = TRUE){
     if (length(i) > 1) {
@@ -15,34 +27,54 @@ length.JuliaObject <- function(x){
     julia_call("getindex", x, as.integer(i))
 }
 #' @export
-`[<-.JuliaObject` <- function(x, i, value)
-    julia_call("setindex!", x, value, as.integer(i))
+`[<-.JuliaObject` <- function(x, ..., value){
+    julia_do.call("JuliaCall.assign!", c(list(x, value), as_indexes(list(...))))
+}
 #' @export
 `[[<-.JuliaObject` <- function(x, i, value)
-    julia_call("setindex!", x, value, as.integer(i))
+    julia_call("JuliaCall.assign!", x, value, as.integer(i))
 
 #' @export
 as.character.JuliaObject <- function(x, ...)
-    julia_call("JuliaCall.asCharacter", x)
+    tryCatch(julia_call("JuliaCall.asCharacter", x),
+             warning = function(w){},
+             error = function(e){warning("as.character(x) failed; return(x) instead."); x}
+    )
+
 #' @export
 as.list.JuliaObject <- function(x, ...)
-    julia_call("RCall.sexp", julia_eval("RCall.VecSxp"), x)
+    tryCatch(julia_call("RCall.sexp", julia_eval("RCall.VecSxp"), x),
+             warning = function(w){},
+             error = function(e){list(x)})
+
 #' @export
 as.double.JuliaObject <- function(x, ...)
-    julia_call("JuliaCall.asDouble", x)
+    tryCatch(julia_call("JuliaCall.asDouble", x),
+             warning = function(w){},
+             error = function(e){warning("as.double(x) failed; return(x) instead."); x}
+    )
+
 #' @export
 as.integer.JuliaObject <- function(x, ...)
     as.integer(as.double(x))
 #' @export
 as.logical.JuliaObject <- function(x, ...)
-    julia_call("JuliaCall.asLogical", x)
+    tryCatch(julia_call("JuliaCall.asLogical", x),
+             warning = function(w){},
+             error = function(e){warning("as.logical(x) failed; return(x) instead."); x}
+    )
 
 fdot <- function(x) paste0(as.character(x), ".")
 
 ## Ops Group
 
 #' @export
-Ops.JuliaObject <- function(e1, e2) julia_call(fdot(.Generic), e1, e2)
+Ops.JuliaObject <- function(e1, e2 = NULL){
+    if (is.null(e2)) {
+        return(JuliaPlain(julia_call(fdot(.Generic), e1)))
+    }
+    JuliaPlain(julia_call(fdot(.Generic), e1, e2))
+}
 #' @export
 `%%.JuliaObject` <- function(e1, e2) julia_call("mod.", e1, e2)
 #' @export
@@ -82,3 +114,61 @@ signif.JuliaObject <-
 #' @export
 Summary.JuliaObject <-
     function(x, ..., na.rm = FALSE) julia_call(as.character(.Generic), x)
+
+## Array related
+
+#' @export
+as.vector.JuliaObject <- function(x, mode = "any"){
+    if (length(x) == 1) x
+    else tryCatch(julia_call("vec", x), warning = function(w){}, error = function(e){x})
+}
+
+#' @export
+dim.JuliaObject <- function(x) julia_call("JuliaCall.dim", x)
+
+#' @export
+`dim<-.JuliaObject` <- function(x, value)
+    julia_do.call("reshape", c(list(x), as.integer(value)))
+
+#' @export
+aperm.JuliaObject <- function(a, perm, ...)
+    julia_call("permutedims", a, as.integer(perm))
+
+#' @export
+is.array.JuliaObject <- function(x) julia_call("JuliaCall.isArray", x)
+
+#' @export
+is.matrix.JuliaObject <- function(x) julia_call("JuliaCall.isMatrix", x)
+
+## Mean
+
+#' @export
+mean.JuliaObject <- function(x, ...) julia_call("mean", x)
+
+#' @export
+determinant.JuliaObject <- function(x, logarithm = TRUE, ...){
+    r <- julia_call("logabsdet", x)
+    names(r) <- c("modulus", "sign")
+    r$sign <- r$sign + 0.0
+    r
+}
+
+#' @export
+solve.JuliaObject <- function(a, b, ...){
+    if (missing(b)) {
+        return(julia_call("inv", a))
+    }
+    julia_call("\\", a, b)
+}
+
+#' @export
+c.JuliaObject <- function(...){
+    dots <- list(...)
+    if (length(dots) == 1) return(dots[[1]])
+    dots
+}
+
+#' @export
+t.JuliaObject <- function(x){
+    julia_call("transpose", x)
+}
