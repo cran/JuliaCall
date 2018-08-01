@@ -1,19 +1,26 @@
-output = IOBuffer()
+const output = IOBuffer()
 
-out_terminal = Base.Terminals.TerminalBuffer(output)
+if julia07
+    using REPL
+    const Void = Nothing
+else
+    const REPL = Base.REPL
+end
 
-basic_repl = Base.REPL.BasicREPL(out_terminal)
+const out_terminal = REPL.Terminals.TerminalBuffer(output)
 
-basic_display = Base.REPL.REPLDisplay(basic_repl)
+const basic_repl = REPL.BasicREPL(out_terminal)
+
+const basic_display = REPL.REPLDisplay(basic_repl)
 
 Base.pushdisplay(basic_display)
 
-type DisplayManager
-    repl_display :: Base.REPL.REPLDisplay
+mutable struct DisplayManager
+    repl_display :: REPL.REPLDisplay
     location :: Int64
 end
 
-DisplayManager(repl_display :: Base.REPL.REPLDisplay) = DisplayManager(repl_display, 0)
+DisplayManager(repl_display :: REPL.REPLDisplay) = DisplayManager(repl_display, 0)
 
 function Rprint(s) ccall((:Rprintf,RCall.libR),Void,(Ptr{Cchar},), s) end
 
@@ -25,4 +32,4 @@ function proceed(dm :: DisplayManager)
     end
 end
 
-basic_display_manager = DisplayManager(basic_display)
+const basic_display_manager = DisplayManager(basic_display)

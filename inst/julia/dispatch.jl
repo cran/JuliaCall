@@ -14,25 +14,42 @@ tanpi(x) = sinpi(x) / cospi(x)
 
 unlist(x) = vcat(x...)
 
-rep(x, times) = repmat(vcat(x), times)
+rep(x, times) = @static if julia07 repeat(vcat(x), times) else repmat(vcat(x), times) end
 
-function assign!(x :: AbstractArray, value :: AbstractArray, i)
-    try
+function assign!(x :: AbstractArray{T}, value :: AbstractArray{T}, i) where {T}
+    setindex!(x, value, i)
+end
+
+function assign!(x :: AbstractArray{T}, value :: AbstractArray, i) where {T}
+    commontype = promote_type(eltype(x), eltype(value))
+    if T == commontype
         setindex!(x, value, i)
-    catch e
-        commontype = promote_type(eltype(x), eltype(value))
+    else
         x = AbstractArray{commontype}(x)
         setindex!(x, value, i)
     end
 end
 
-function assign!(x :: AbstractArray, value, i...)
-    try
+function assign!(x :: AbstractArray{T}, value :: T, i...) where {T}
+    setindex!(x, value, i...)
+end
+
+function assign!(x :: AbstractArray{T}, value, i...) where {T}
+    commontype = promote_type(eltype(x), typeof(value))
+    if T == commontype
         setindex!(x, value, i...)
-    catch e
-        commontype = promote_type(eltype(x), typeof(value))
+    else
         x = AbstractArray{commontype}(x)
         setindex!(x, value, i...)
+    end
+end
+
+function assign!(x, value, i)
+    if length(x) == 1 && i == 1
+        value
+    else
+        warn("Assignment for JuliaObject fails.")
+        x
     end
 end
 
@@ -45,3 +62,25 @@ isArray(x :: AbstractArray) = true
 isArray(x) = false
 
 dim(x) = vcat(size(x)...)
+
+Rmax(xs...) = maximum((maximum(x) for x in xs))
+
+function Jc(xs...)
+    if length(xs) > 1
+        vcat((_Jc(x) for x in xs)...)
+    else
+        xs[1]
+    end
+end
+
+function Jc(x :: AbstractArray)
+    vec(x)
+end
+
+function _Jc(x :: AbstractArray)
+    vec(x)
+end
+
+function _Jc(x)
+    [x]
+end

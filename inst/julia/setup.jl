@@ -1,5 +1,29 @@
-Base.load_juliarc()
+if VERSION < v"0.6.5"
+    Base.load_juliarc()
+else
+    Base.load_julia_startup()
+    using Pkg
+end
+
 module JuliaCall
+
+const julia07 = VERSION > v"0.6.5"
+
+if julia07
+    using Pkg
+    const parse = Meta.parse
+    const is_windows = Sys.iswindows
+    const Display = AbstractDisplay
+    const readstring(s) = read(s, String)
+end
+
+function installed(name)
+    @static if julia07
+        get(Pkg.installed(), name, nothing)
+    else
+        Pkg.installed(name)
+    end
+end
 
 # gc_enable(false)
 
@@ -9,7 +33,7 @@ module JuliaCall
 
 using Suppressor
 
-if !is_windows()
+if !is_windows() && !julia07
     @suppress_err begin
         @eval Base JULIA_HOME = joinpath(dirname(JULIA_HOME), "bin")
         @eval Base julia_cmd() = julia_cmd(joinpath(JULIA_HOME, julia_exename()))
@@ -22,21 +46,17 @@ const need_display = length(Base.Multimedia.displays) < 2
 
 if need_display
     include("./display/basic.jl")
-    include("./display/Rjulia.jl")
-    include("./display/IRjulia.jl")
-    include("./display/RmdJulia.jl")
-    include("./display/plotsViewer.jl")
 end
+include("./display/IRjulia.jl")
+include("./display/RmdJulia.jl")
+include("./display/plotsViewer.jl")
 include("REPLhook.jl")
 include("incomplete_console.jl")
+
 include("convert.jl")
 include("JuliaObject.jl")
 include("asR.jl")
 include("dispatch.jl")
-
-function transfer_list(x)
-    rcopy(RObject(Ptr{RCall.VecSxp}(x)))
-end
 
 function error_msg(e, bt)
     m = IOBuffer()
@@ -52,50 +72,82 @@ function Rerror(e, bt)
     rcall(:simpleError, s)
 end
 
+function funcfind(name)
+    r = Main
+    ns = split(name, ".")
+    for n in ns
+        r = getfield(r, Symbol(n))
+    end
+    r
+end
+
+# function call_decompose(call1)
+#     call = rcopy(RObject(Ptr{RCall.VecSxp}(call1)))
+#     (call[:fname], call[:named_args], call[:unamed_args], call[:need_return], call[:show_value])
+# end
+
+function call_decompose(call1)
+    call = RObject(Ptr{RCall.VecSxp}(call1))
+    fname = rcopy(String, call[:fname])
+    # named_args = Any[(rcopy(Symbol, k), rcopy(i)) for (k, i) in enumerate(call[:named_args])]
+    # unamed_args = Any[rcopy(i) for i in call[:unamed_args]]
+    named_args = Any[]
+    unamed_args = Any[]
+    for (k,a) in enumerate(call[:args])
+        if isa(k.p, Ptr{RCall.NilSxp})
+            push!(unamed_args, rcopy(a))
+        else
+            push!(named_args, (rcopy(Symbol,k), rcopy(a)))
+        end
+    end
+    need_return = rcopy(String, call[:need_return])
+    show_value = rcopy(Bool, call[:show_value])
+    (fname, named_args, unamed_args, need_return, show_value)
+end
+
 function docall(call1)
     try
-        call = transfer_list(call1)
-        fname = call[:fname];
-        named_args = call[:named_args]
-        unamed_args = call[:unamed_args]
-        need_return = call[:need_return];
-        show_value = call[:show_value];
+        fname, named_args, unamed_args, need_return, show_value = call_decompose(call1);
         if endswith(fname, ".")
             fname = chop(fname);
-            f = eval(Main, parse(fname));
-            r = f.(unamed_args...);
+            # f = eval(Main, parse(fname));
+            f = funcfind(fname);
+            r = broadcast(f, unamed_args...);
         else
-            f = eval(Main, parse(fname));
+            # f = eval(Main, parse(fname));
+            f = funcfind(fname);
             r = f(unamed_args...; named_args...);
         end
         if show_value && r != nothing
             display(r)
         end
-        if need_display
+        @static if need_display
             proceed(basic_display_manager)
         end
         if need_return == "R"
             RObject(r).p;
         elseif need_return == "Julia"
-            RObject(JuliaObject(r)).p
+            RObject(JuliaObject(r)).p;
         else
             RObject(nothing).p;
         end;
     catch e
-        Rerror(e, catch_stacktrace()).p;
+        Rerror(e, stacktrace(catch_backtrace())).p;
     end;
 end
 
+include("interface1.jl")
+
 function exists(x)
-    isdefined(Symbol(x))
+    isdefined(Main, Symbol(x))
 end
 
 function eval_string(x)
-    eval(Main, parse(x))
+    Core.eval(Main, parse(x))
 end
 
 function installed_package(pkg_name)
-    string(Pkg.installed(pkg_name))
+    string(installed(pkg_name))
 end
 
 function help(fname)
@@ -103,7 +155,7 @@ function help(fname)
 end
 
 function assign(name, x)
-    eval(Main, Expr(:(=), Symbol(name), x))
+    Core.eval(Main, Expr(:(=), Symbol(name), x))
 end
 
 function str_typeof(x)

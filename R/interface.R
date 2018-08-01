@@ -28,17 +28,24 @@ NULL
 #' @rdname call
 #' @export
 julia_do.call <- julia$do.call <- function(func_name, arg_list, need_return = c("R", "Julia", "None"), show_value = FALSE){
-    stopifnot(length(func_name) == 1, is.character(func_name), is.list(arg_list),
-              length(show_value) == 1, is.logical(show_value))
-    if (identical(need_return, TRUE)) {
-        need_return <- "R"
-    }
-    if (identical(need_return, FALSE)) {
-        need_return <- "None"
-    }
-    else {
+    ## stopifnot is quite slow, use multiple if
+    # stopifnot(length(func_name) == 1, is.character(func_name), is.list(arg_list),
+    #           length(show_value) == 1, is.logical(show_value))
+    if (!length(func_name) == 1 || !is.character(func_name)) stop("func_name must be a character scalar.")
+    # if (!is.list(arg_list)) stop("arg_list must be a list of arguments.")
+    if (!length(show_value) == 1 || !is.logical(show_value)) stop("show_value must be a logical scalar.")
+    if (is.character(need_return)) {
         need_return <- match.arg(need_return, c("R", "Julia", "None"))
     }
+    else {
+        if (identical(need_return, TRUE)) {
+            need_return <- "R"
+        }
+        else {
+            need_return <- "None"
+        }
+    }
+
     ## julia_setup() is not necessary,
     ## unless you want to pass some arguments to it.
     if (!.julia$initialized) {
@@ -49,10 +56,14 @@ julia_do.call <- julia$do.call <- function(func_name, arg_list, need_return = c(
     ## see RMarkdown.R for more details.
     output_reset()
 
-    args <- separate_arguments(arglist = arg_list)
+    # args <- separate_arguments(arglist = arg_list)
+    # jcall <- list(fname = func_name,
+    #               named_args = as.pairlist(args$named),
+    #               unamed_args = args$unamed,
+    #               need_return = need_return,
+    #               show_value = show_value)
     jcall <- list(fname = func_name,
-                  named_args = args$named,
-                  unamed_args = args$unamed,
+                  args = as.pairlist(arg_list),
                   need_return = need_return,
                   show_value = show_value)
     r <- .julia$do.call_(jcall)
@@ -68,7 +79,7 @@ julia_do.call <- julia$do.call <- function(func_name, arg_list, need_return = c(
 #' @rdname call
 #' @export
 julia_call <- julia$call <- function(func_name, ..., need_return = c("R", "Julia", "None"), show_value = FALSE)
-    julia$do.call(func_name, list(...), need_return, show_value)
+    julia$do.call(func_name, pairlist(...), need_return, show_value)
 
 #' Check whether a julia object with the given name exists or not.
 #'
@@ -178,3 +189,11 @@ julia_help <- julia$help <- function(fname){
 #' @export
 julia_assign <- julia$assign <-
     function(x, value) julia$call("JuliaCall.assign", x, value, need_return = FALSE)
+
+julia_simple_call <- julia$simple_call <- function(func, ...){
+    # if (missing(arg2)) r <- .julia$simple_call_(func, arg1)
+    # else r <- .julia$simple_call_(func, arg1, arg2)
+    r <- .julia$simple_call_(func, ...)
+    if (inherits(r, "error")) stop(r)
+    r
+}

@@ -1,4 +1,4 @@
-type ViewerDisplay <: Display
+struct ViewerDisplay <: Display
 end
 
 function pngwrite(x, filename)
@@ -34,8 +34,9 @@ function display(d::ViewerDisplay, p)
         return
         display(d, MIME("image/png"), p)
         return
+    catch e;
     end
     throw(MethodError(display, [d, p]))
 end
 
-viewer_display = ViewerDisplay()
+const viewer_display = ViewerDisplay()

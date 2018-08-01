@@ -53,7 +53,7 @@ end
 ## As long as the interface stays the same, the following code should be fine.
 ## The global JuliaObjectContainer julia_object_stack
 
-julia_object_stack = JuliaObjectContainer()
+const julia_object_stack = JuliaObjectContainer()
 
 function new_obj(obj, typ = "Regular")
     add!(julia_object_stack, obj, typ)
@@ -70,15 +70,18 @@ JuliaObject(x, typ = "Regular") = new_obj(x, typ)
 
 ## Conversion related to JuliaObject
 
+const makeJuliaObjectInR = reval("JuliaCall:::juliaobject[['new']]")
+
 function sexp(x :: JuliaObject)
-    reval("JuliaCall:::juliaobject[['new']]")(getPlainID(x), getType(x))
+    rcall(makeJuliaObjectInR, getPlainID(x), getType(x)).p
 end
 
 import RCall.rcopy
 
 function rcopy(::Type{JuliaObject}, x::Ptr{EnvSxp})
     try
-        get(julia_object_stack, rcopy(RObject(x)[:getID]()))
+        # get(julia_object_stack, rcopy(Int32, RObject(x)[:getID]()))
+        get(julia_object_stack, rcopy(Int32, RObject(x)[:id]))
     catch e
         nothing
     end
@@ -95,7 +98,7 @@ sexp(x) = sexp(JuliaObject(x))
 ## Regarding to issue #12, #13 and #16,
 ## we should use JuliaObject for general AbstractArray
 @suppress_err begin
-    JuliaCall.sexp{T}(x :: AbstractArray{T}) = sexp(JuliaObject(x))
+    JuliaCall.sexp(x :: AbstractArray{T}) where {T} = sexp(JuliaObject(x))
 end
 
 ## AbstractArray{Any} should be converted to R List

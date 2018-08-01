@@ -166,6 +166,8 @@ julia_setup <- function(JULIA_HOME = NULL, verbose = TRUE, force = FALSE, useRCa
     ## Suppress pyplot gui
     julia_command('ENV["MPLBACKEND"] = "Agg";')
 
+    .julia$simple_call_ <- julia_eval("JuliaCall.simple_call")
+
     invisible(julia)
 }
 
@@ -173,5 +175,6 @@ install_dependency <- function(){
     ## `RCall` needs to be precompiled with the current R.
     julia_line(c(system.file("julia/install_dependency.jl", package = "JuliaCall"),
                  R.home()),
-               stderr = FALSE)
+               stdout = TRUE,
+               stderr = TRUE)
 }

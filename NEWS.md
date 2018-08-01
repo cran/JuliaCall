@@ -1,3 +1,31 @@
+# JuliaCall 0.14.3.9000
+
+* Try to remove `R6` dependency to reduce overhead creating `JuliaObject`.
+* Compatibility with `Julia` v0.7,
+  currently need to use `RCall#e59a546` with `JuliaCall` on `Julia` v0.7.
+* Deprecation fixing with `Julia` v0.7.
+* Implementation of `diff.JuliaObject`.
+
+# JuliaCall 0.14.2.9000
+
+* Match the assignment behavior for `JuliaObject` to that in native R.
+* Implementation of generics for `is.numeric` for `JuliaObject`.
+* Bug correction for `c.JuliaObject`.
+
+# JuliaCall 0.14.1.9000
+
+* Make the error in `install_dependency` not muted.
+* Various performance improvements in `julia_call` interface functions.
+* Performance improvement for `sexp`, `rcopy` and creating of `JuliaObject`.
+* Performance improvement in display systems.
+* Have a `julia$simple_call` interface which is a simple and more performant
+  "equivalent" of the `julia_call` interface.
+* Various small bug fixes.
+
+# JuliaCall 0.14.0
+
+* Seventh release on CRAN.
+
 # JuliaCall 0.13.2.9000
 
 * Use more robust way to locate libjulia, fix #29 and #57.
