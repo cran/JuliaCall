@@ -1,3 +1,25 @@
+# JuliaCall 0.15.1.9000
+
+* More deprecation warning fixed for `Julia` v0.7.
+* `JuliaCall` is now compatible with `RCall` v0.11.0 on `Julia` v0.7.
+* Fix the problem caused by the failure of `Pkg.build("RCall")`.
+* Fix various small issues in `Julia` v1.0.
+* Fix a segfault on Windows with `Julia` v0.7 and v1.0.
+* `JuliaCall` now should be usable on `Julia` v0.7 and `Julia` v1.0 with released version of `RCall`.
+* Fix issue #65 in `julia_source` on `Julia` v0.7 and v1.0.
+* Remove `julia_check` which is deprecated a long time ago.
+
+# JuliaCall 0.15.0.9000
+
+* Some performance improvements.
+* Add `install` argument in `julia_setup()`, setting it to `FALSE` can reduce startup time
+  when no installation or checking of dependent `Julia` packages is needed.
+* Improve `julia_console()`.
+
+# JuliaCall 0.15.0
+
+* Eighth release on CRAN.
+
 # JuliaCall 0.14.3.9000
 
 * Try to remove `R6` dependency to reduce overhead creating `JuliaObject`.

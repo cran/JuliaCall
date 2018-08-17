@@ -17,7 +17,7 @@ as_indexes <- function(ii){
 
 #' @export
 `[.JuliaObject` <- function(x, ...){
-    julia_do.call("getindex", c(list(x), as_indexes(list(...))))
+    julia$simple_do.call("getindex", c(list(x), as_indexes(list(...))))
 }
 #' @export
 `[[.JuliaObject` <- function(x, i, exact = TRUE){
@@ -28,11 +28,11 @@ as_indexes <- function(ii){
 }
 #' @export
 `[<-.JuliaObject` <- function(x, ..., value){
-    julia_do.call("JuliaCall.assign!", c(list(x, value), as_indexes(list(...))))
+    julia$simple_do.call("JuliaCall.assign!", c(list(x, value), as_indexes(list(...))))
 }
 #' @export
 `[[<-.JuliaObject` <- function(x, i, value)
-    julia_call("JuliaCall.assign!", x, value, as.integer(i))
+    julia$simple_call("JuliaCall.assign!", x, value, as.integer(i))
 
 #' @export
 as.character.JuliaObject <- function(x, ...)
@@ -103,11 +103,11 @@ cumprod.JuliaObject <- function(x) julia$simple_call("JuliaCall.cumprod1", x)
 
 #' @export
 round.JuliaObject <-
-    function(x, digits = 0) julia$simple_call("round.", x, as.integer(digits))
+    function(x, digits = 0) julia$simple_call("JuliaCall.round1.", x, as.integer(digits))
 
 #' @export
 signif.JuliaObject <-
-    function(x, digits = 6) julia$simple_call("signif.", x, as.integer(digits))
+    function(x, digits = 6) julia$simple_call("JuliaCall.signif.", x, as.integer(digits))
 
 ## Summary Group Unfinished
 
@@ -117,7 +117,7 @@ Summary.JuliaObject <-
 
 #' @export
 max.JuliaObject <-
-    function(..., na.rm = FALSE) julia_call("JuliaCall.Rmax", ...)
+    function(..., na.rm = FALSE) julia$simple_call("JuliaCall.Rmax", ...)
 
 ## Array related
 
@@ -132,7 +132,7 @@ dim.JuliaObject <- function(x) julia$simple_call("JuliaCall.dim", x)
 
 #' @export
 `dim<-.JuliaObject` <- function(x, value)
-    julia_do.call("reshape", c(list(x), as.integer(value)))
+    julia$simple_do.call("reshape", c(list(x), as.integer(value)))
 
 #' @export
 aperm.JuliaObject <- function(a, perm, ...)

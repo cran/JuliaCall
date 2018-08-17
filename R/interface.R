@@ -63,7 +63,8 @@ julia_do.call <- julia$do.call <- function(func_name, arg_list, need_return = c(
     #               need_return = need_return,
     #               show_value = show_value)
     jcall <- list(fname = func_name,
-                  args = as.pairlist(arg_list),
+                  ##args = as.pairlist(arg_list),
+                  args = arg_list,
                   need_return = need_return,
                   show_value = show_value)
     r <- .julia$do.call_(jcall)
@@ -79,7 +80,7 @@ julia_do.call <- julia$do.call <- function(func_name, arg_list, need_return = c(
 #' @rdname call
 #' @export
 julia_call <- julia$call <- function(func_name, ..., need_return = c("R", "Julia", "None"), show_value = FALSE)
-    julia$do.call(func_name, pairlist(...), need_return, show_value)
+    julia$do.call(func_name, list(...), need_return, show_value)
 
 #' Check whether a julia object with the given name exists or not.
 #'
@@ -152,7 +153,7 @@ julia_command <- julia$command <-
 #'
 #' @export
 julia_source <- julia$source <-
-    function(file_name) julia$call("include", file_name, need_return = FALSE)
+    function(file_name) julia$call("JuliaCall.include1", file_name, need_return = FALSE)
 
 #' Get help for a julia function.
 #'
@@ -196,4 +197,8 @@ julia_simple_call <- julia$simple_call <- function(func, ...){
     r <- .julia$simple_call_(func, ...)
     if (inherits(r, "error")) stop(r)
     r
+}
+
+julia_simple_do.call <- julia$simple_do.call <- function(func, args){
+    do.call(julia_simple_call, c(list(func), args))
 }

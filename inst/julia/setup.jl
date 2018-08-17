@@ -3,6 +3,8 @@ if VERSION < v"0.6.5"
 else
     Base.load_julia_startup()
     using Pkg
+    ## needed by console
+    const STDIN = stdin
 end
 
 module JuliaCall
@@ -11,10 +13,30 @@ const julia07 = VERSION > v"0.6.5"
 
 if julia07
     using Pkg
+    ## needed by eval_string function
     const parse = Meta.parse
+    ## needed by system checking
     const is_windows = Sys.iswindows
+    ## needed by display system
     const Display = AbstractDisplay
     const readstring(s) = read(s, String)
+    ## needed by console
+    using REPL
+    const REPLCompletions = REPL.REPLCompletions
+
+    ## needed by round and signif
+    const round1(x::Number, digits) = round(x; digits=digits)
+    const signif(x::Number, digits) = round(x; sigdigits=digits)
+
+    ## needed by IRjulia display
+    using Base64
+else
+    ## in julia06
+    ## needed by console
+    const REPLCompletions = Base.REPLCompletions
+
+    ## needed by round
+    const round1 = round
 end
 
 function installed(name)
@@ -44,6 +66,7 @@ using RCall
 
 const need_display = length(Base.Multimedia.displays) < 2
 
+import Base.Multimedia.display
 if need_display
     include("./display/basic.jl")
 end
@@ -88,20 +111,35 @@ end
 
 function call_decompose(call1)
     call = RObject(Ptr{RCall.VecSxp}(call1))
-    fname = rcopy(String, call[:fname])
+    # fname = rcopy(String, call[:fname])
+    fname = rcopy(String, call[1]) :: String
     # named_args = Any[(rcopy(Symbol, k), rcopy(i)) for (k, i) in enumerate(call[:named_args])]
     # unamed_args = Any[rcopy(i) for i in call[:unamed_args]]
-    named_args = Any[]
-    unamed_args = Any[]
-    for (k,a) in enumerate(call[:args])
-        if isa(k.p, Ptr{RCall.NilSxp})
-            push!(unamed_args, rcopy(a))
-        else
-            push!(named_args, (rcopy(Symbol,k), rcopy(a)))
-        end
+    args = call[2] :: RObject{RCall.VecSxp}
+    symbols = rcopy(Vector{Symbol}, getnames(args)) :: Vector{Symbol}
+    es = rcopy(Vector{Any}, args) :: Vector{Any}
+    if length(symbols) == 0
+        unamed_args = es
+        named_args = Any[]
+    else
+        unamed_args = Any[es[i] for i in 1:length(es) if symbols[i] == Symbol("")]
+        named_args = Any[(symbols[i], es[i]) for i in 1:length(es) if symbols[i] != Symbol("")]
     end
-    need_return = rcopy(String, call[:need_return])
-    show_value = rcopy(Bool, call[:show_value])
+
+    # named_args = Any[]
+    # unamed_args = Any[]
+    # # for (k,a) in enumerate(call[:args])
+    # for (k,a) in enumerate(args)
+    #     if isa(k.p, Ptr{RCall.NilSxp})
+    #         push!(unamed_args, rcopy(a))
+    #     else
+    #         push!(named_args, (rcopy(Symbol,k), rcopy(a)))
+    #     end
+    # end
+    # need_return = rcopy(String, call[:need_return])
+    need_return = rcopy(String, call[3]) :: String
+    # show_value = rcopy(Bool, call[:show_value])
+    show_value = rcopy(Bool, call[4]) :: Bool
     (fname, named_args, unamed_args, need_return, show_value)
 end
 
@@ -121,15 +159,15 @@ function docall(call1)
         if show_value && r != nothing
             display(r)
         end
-        @static if need_display
-            proceed(basic_display_manager)
-        end
+        # @static if need_display
+        #     proceed(basic_display_manager)
+        # end
         if need_return == "R"
-            RObject(r).p;
+            sexp(r);
         elseif need_return == "Julia"
-            RObject(JuliaObject(r)).p;
+            sexp(JuliaObject(r));
         else
-            RObject(nothing).p;
+            sexp(nothing);
         end;
     catch e
         Rerror(e, stacktrace(catch_backtrace())).p;
@@ -147,7 +185,11 @@ function eval_string(x)
 end
 
 function installed_package(pkg_name)
-    string(installed(pkg_name))
+    try
+        string(installed(pkg_name))
+    catch e
+        "nothing";
+    end
 end
 
 function help(fname)
@@ -166,6 +208,15 @@ function show_string(x)
     buf = IOBuffer()
     show(IOContext(buf, :limit=>true), x)
     return String(take!(buf))
+end
+
+## Needed by julia_source
+function include1(fname)
+    @static if julia07
+        Base.include(Main, fname)
+    else
+        include(fname)
+    end
 end
 
 end

@@ -31,14 +31,12 @@ end;
 
 using Suppressor
 
-if julia07
-    pkg"add RCall#e59a546"
-elseif installed("RCall") == nothing
+if installed("RCall") == nothing
     Pkg.add("RCall")
 end;
 
+depsjl = Pkg.dir("RCall", "deps", "deps.jl")
 
-depsjl = Base.Pkg.dir("RCall", "deps", "deps.jl")
 if isfile(depsjl)
     include(depsjl)
 
@@ -46,7 +44,11 @@ if isfile(depsjl)
         Pkg.build("RCall")
     end
 else
-    using RCall
+    try
+        using RCall
+    catch e
+        Pkg.build("RCall")
+    end
 
     if RCall.Rhome != CurrentRhome
         if installed("RCall") >= v"0.10.2"
