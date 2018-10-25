@@ -43,7 +43,7 @@ as.character.JuliaObject <- function(x, ...)
 
 #' @export
 as.list.JuliaObject <- function(x, ...)
-    tryCatch(julia_call("RCall.sexp", julia_eval("RCall.VecSxp"), x),
+    tryCatch(julia_call("convert", julia_eval("Array{Any}"), x),
              warning = function(w){},
              error = function(e){list(x)})
 
@@ -153,7 +153,7 @@ mean.JuliaObject <- function(x, ...) julia$simple_call("mean", x)
 determinant.JuliaObject <- function(x, logarithm = TRUE, ...){
     r <- julia$simple_call("logabsdet", x)
     names(r) <- c("modulus", "sign")
-    r$sign <- r$sign + 0.0
+    # r$sign <- r$sign + 0.0
     r
 }
 

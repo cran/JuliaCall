@@ -5,6 +5,10 @@ else
     using Pkg
     ## needed by console
     const STDIN = stdin
+    ## needed by functions like det
+    using LinearAlgebra
+    ## needed by functions like mean
+    using Statistics
 end
 
 module JuliaCall
@@ -33,6 +37,7 @@ if julia07
 else
     ## in julia06
     ## needed by console
+    const REPL = Base.REPL
     const REPLCompletions = Base.REPLCompletions
 
     ## needed by round
