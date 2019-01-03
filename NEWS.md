@@ -1,3 +1,11 @@
+# JuliaCall 0.16.1.9000
+
+* Capturing stdout from Julia in RMarkdown documents.
+
+# JuliaCall 0.16.1
+
+* Tenth release on CRAN.
+
 # JuliaCall 0.16.0.9000
 
 * More deprecation warning fixed for `Julia` v0.7/1.0.
@@ -46,7 +54,7 @@
 
 * Make the error in `install_dependency` not muted.
 * Various performance improvements in `julia_call` interface functions.
-* Performance improvement for `sexp`, `rcopy` and creating of `JuliaObject`.
+* Performance improvement for `sexp`, `rcopy` and creation of `JuliaObject`.
 * Performance improvement in display systems.
 * Have a `julia$simple_call` interface which is a simple and more performant
   "equivalent" of the `julia_call` interface.
@@ -142,7 +150,7 @@
 
 * Remove deprecated `julia_eval_string`.
 * Improve `JuliaCall` RMarkdown engine.
-  The display system should work for all kinds of documents that rmarkdown supports.
+  The display system should work for all kinds of documents that RMarkdown supports.
 * Should use older version of RCall with older version of R.
 
 # JuliaCall 0.10.0.9000 - 0.10.6.9000
@@ -164,7 +172,7 @@
 # JuliaCall 0.9.2.9000
 
 * New Julia display system `plotsViewer()`, which integrates better into R.
-* Fits several bugs in `JuliaCall`, like removing using of depreated function.
+* Fixes several bugs in `JuliaCall`, like removing deprecated functions.
 * Improve display systems of RMarkdown and Jupyter R Notebook.
 
 # JuliaCall 0.9.1.9000

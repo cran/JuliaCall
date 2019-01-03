@@ -26,16 +26,15 @@ a = sqrt(2)
 ``` julia
 a = sqrt(2);
 
-## And lots of different types of display are supported in JuliaCall.
-## Like markdown.
-@doc sqrt
+b = begin println(sqrt(2)); sqrt(2) end
 ```
 
-    ## ```
-    ## sqrt(x)
-    ## ```
-    ## 
-    ## Return $\sqrt{x}$. Throws [`DomainError`](@ref) for negative [`Real`](@ref) arguments. Use complex negative arguments instead. The prefix operator `√` is equivalent to `sqrt`.
+    ## 1.4142135623730951
+
+    ## 1.4142135623730951
+
+``` julia
+```
 
 ## Get Access to Julia in R Chunk
 
@@ -46,7 +45,7 @@ easily using `JuliaCall`, for example:
 ## This is a R language chunk.
 ## In the previous julia chunk, we define variable a, 
 ## we can use functions in JuliaCall to get access to it.
-JuliaCall::julia_eval("a")
+JuliaCall::julia_eval("a") + JuliaCall::julia_eval("b")
 ```
 
-    ## [1] 1.414214
+    ## [1] 2.828427
