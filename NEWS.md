@@ -1,6 +1,20 @@
+# JuliaCall 0.16.3.9000
+
+* Improvement for `JuliaObject`, which frees the `JuliaObject` on the `Julia` side
+  after it's freed on the R side.
+
+# JuliaCall 0.16.2.9000
+
+* Respect `engine.path` option for `Julia` in RMarkdown document.
+* Refactor `Julia` `knitr` engine to avoid use of `knitr` internal functions.
+
+# JuliaCall 0.16.2
+
+* Eleventh release on CRAN.
+
 # JuliaCall 0.16.1.9000
 
-* Capturing stdout from Julia in RMarkdown documents.
+* Capturing `Julia` stdout in RMarkdown documents.
 
 # JuliaCall 0.16.1
 
