@@ -34,3 +34,17 @@ using Suppressor
 if installed("RCall") == nothing
     Pkg.add("RCall")
 end;
+
+try
+    using RCall
+catch e
+    Pkg.build("RCall")
+end
+
+if RCall.Rhome != CurrentRhome
+    if installed("RCall") >= v"0.10.2"
+        Pkg.build("RCall")
+    else
+        Base.compilecache("RCall")
+    end
+end
