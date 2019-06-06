@@ -112,7 +112,7 @@ julia_exists("c")
 
 julia_install_package_if_needed("Optim")
 julia_installed_package("Optim")
-#> [1] "0.17.2"
+#> [1] "0.18.1"
 julia_library("Optim")
 ```
 
@@ -135,6 +135,16 @@ Such problems are usually on Linux machines. The cause for the problem
 is that R cannot find the libstdc++ version needed by `Julia`. To deal
 with the problem, users can export “TheFolderContainsJulia/lib/julia” to
 R\_LD\_LIBRARY\_PATH.
+
+### RCall not properly installed
+
+The issue is usually caused by updates in R, and it can be typically
+solved by setting `rebuild` argument to `TRUE` in `julia_setup()` as
+follows.
+
+``` r
+JuliaCall::julia_setup(rebuild = TRUE)
+```
 
 ### How to Get Help
 
@@ -252,10 +262,13 @@ at <lch34677@gmail.com> or <cxl508@psu.edu>.
 reporting is welcome\! You may report it using the link:
 <https://github.com/Non-Contradiction/JuliaCall/issues/new>, or email me
 at <lch34677@gmail.com> or <cxl508@psu.edu>. You are welcome to use the
-[issue template](.github/issue_template.md) and the [pull request
-template](.github/pull_request_template.md). The [contributing
-guide](.github/CONTRIBUTING.md) provides some guidance for making
-contributions.
+[issue
+template](https://github.com/Non-Contradiction/JuliaCall/blob/master/.github/ISSUE_TEMPLATE/bug_report.md)
+and the [pull request
+template](https://github.com/Non-Contradiction/JuliaCall/blob/master/.github/pull_request_template.md).
+The [contributing
+guide](https://github.com/Non-Contradiction/JuliaCall/blob/master/.github/CONTRIBUTING.md)
+provides some guidance for making contributions.
 
 ### Checking `JuliaCall` Package
 
@@ -293,15 +306,16 @@ package. You can
 ## Code of Conduct
 
 Please note that the `JuliaCall` project is released with a [Contributor
-Code of Conduct](CODE_OF_CONDUCT.md). By contributing to this project,
-you agree to abide by its terms.
+Code of
+Conduct](https://github.com/Non-Contradiction/JuliaCall/blob/master/CODE_OF_CONDUCT.md).
+By contributing to this project, you agree to abide by its terms.
 
 ## Citing
 
 If you use `JuliaCall` in research that resulted in publications, then
 please cite the `JuliaCall` paper using the following BibTeX entry:
 
-    @Article{,
+    @Article{JuliaCall,
         author = {Changcheng Li},
         title = {{JuliaCall}: an {R} package for seamless integration between {R} and {Julia}},
         journal = {The Journal of Open Source Software},
