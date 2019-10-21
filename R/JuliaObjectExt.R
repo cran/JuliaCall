@@ -12,7 +12,7 @@
 #' @export
 autowrap <- function(type, fields = NULL, methods = c()){
     addExt(type, fields, methods)
-    cmd <- paste0('@eval JuliaCall @suppress_err begin sexp(x :: Main.',
+    cmd <- paste0('@eval JuliaCall begin sexp(x :: Main.',
                   type,
                   ') = sexp(JuliaObject(x, "',
                   type,
@@ -23,7 +23,11 @@ autowrap <- function(type, fields = NULL, methods = c()){
 
 addExt <- function(type, fields = NULL, methods = c()){
     if (is.null(fields)) {
-        fields <- julia_call("string.", julia_eval(paste0("fieldnames(", type, ")")))
+        fields <- tryCatch(julia_call("string.",
+                                      julia_eval(paste0("fieldnames(", type, ")"))),
+                           warning = function(...) {c()},
+                           error = function(...) {c()}
+        )
     }
     .juliaobjtable[[type]] <- list(fields = fields, methods = methods)
 }

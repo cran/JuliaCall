@@ -1,8 +1,8 @@
 Package: JuliaCall
 Type: Package
 Title: Seamless Integration Between R and 'Julia'
-Version: 0.16.6
-Date: 2019-6-5
+Version: 0.17.0
+Date: 2019-10-20
 Authors@R: c(
     person("Changcheng", "Li", , "cxl508@psu.edu", c("aut", "cre")),
     person("Randy", "Lai", role = "ctb"),
@@ -31,11 +31,11 @@ ByteCompile: yes
 SystemRequirements: Julia >= 0.6.0, RCall.jl
 Suggests: testthat, rmarkdown
 VignetteBuilder: knitr
-Packaged: 2019-06-06 15:21:14 UTC; lichangcheng
+Packaged: 2019-10-21 15:36:27 UTC; lch34
 Author: Changcheng Li [aut, cre],
   Randy Lai [ctb],
   Dmitri Grominski [ctb],
   Nagi Teramo [ctb]
 Maintainer: Changcheng Li <cxl508@psu.edu>
 Repository: CRAN
-Date/Publication: 2019-06-06 16:22:14 UTC
+Date/Publication: 2019-10-21 16:00:02 UTC
