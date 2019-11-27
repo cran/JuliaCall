@@ -40,6 +40,11 @@ julia_setup <- function(JULIA_HOME = NULL, verbose = TRUE,
         return(invisible(julia))
     }
 
+    ## for rstudio notebook
+    notebook <- isTRUE(options()[['rstudio.notebook.executing']])
+    ## not verbose in notebook
+    verbose <- verbose && (!notebook)
+
     JULIA_HOME <- julia_locate(JULIA_HOME)
 
     if (is.null(JULIA_HOME)) {
@@ -144,7 +149,9 @@ julia_setup <- function(JULIA_HOME = NULL, verbose = TRUE,
     julia$VERSION <- .julia$VERSION
 
     ## Check whether we need to set up RmdDisplay
-    .julia$rmd <- check_rmd()
+    ## Pay attention to rstudio notebook
+    .julia$rmd <- check_rmd() || notebook
+    .julia$notebook <- notebook
 
     ## useRCall will be used later in julia_console,
     ## because in the hook RCall.rgui_start() will be executed,

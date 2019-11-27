@@ -142,7 +142,10 @@ eng_juliacall <- function(options) {
 
     # print(doc)
 
-    knitr::engine_output(options, out = doc)
+    r <- knitr::engine_output(options, out = doc)
+
+    if (!isTRUE(.julia$notebook)) return(r)
+    paste0(r, collapse = "\n")
 }
 
 stdout_capture_command <- function(buffer){
@@ -152,5 +155,36 @@ stdout_capture_command <- function(buffer){
                     collapse = "\n")
     tryCatch(julia_command(buffer),
              warning = function(w) w,
-             error = function(e) e)
+             error = function(e) stop(e))
+}
+
+#' Do setup for JuliaCall in RMarkdown documents and notebooks.
+#'
+#' \code{julia_markdown_setup} does the initial setup for JuliaCall in RMarkdown document and RStudio notebooks.
+#'   The function should be invoked automatically most of the case.
+#'   It can also be called explicitly in RMarkdown documents or notebooks.
+#' @param ... The same arguments accepted by `julia_setup`.
+#' @param notebook whether it is in RStudio notebook environment or not.
+#'
+#' @export
+julia_markdown_setup <- function(..., notebook = FALSE){
+    julia_setup(...)
+    .julia$rmd <- TRUE
+    .julia$notebook <- notebook
+    julia_command("Base.pushdisplay(JuliaCall.rmd_display);")
+}
+
+#' (Deprecated) Do setup for julia chunks in RMarkdown notebooks.
+#'
+#' \code{julia_notebook_setup} is deprecated,
+#'   use \code{julia_markdown_setup(notebook=TRUE)} instead.
+#' @param ... The same arguments accepted by `julia_setup`.
+#'
+#' @export
+julia_notebook_setup <- function(...){
+    .Deprecated('julia_markdown_setup')
+    julia_setup(...)
+    .julia$rmd <- TRUE
+    .julia$notebook <- TRUE
+    julia_command("Base.pushdisplay(JuliaCall.rmd_display);")
 }
