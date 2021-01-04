@@ -13,6 +13,8 @@
 #'     the julia in path.
 #' @param verbose whether to print out detailed information
 #'     about \code{julia_setup}.
+#' @param installJulia whether to install julia automatically when julia is not found,
+#'     whose default value is FALSE.
 #' @param install whether to execute installation script for dependent julia packages, whose default value is TRUE;
 #'     but can be set to FALSE to save startup time when no installation of dependent julia packages is needed.
 #' @param force whether to force julia_setup to execute again.
@@ -20,6 +22,8 @@
 #'     which is an amazing package to access R in julia.
 #' @param rebuild whether to rebuild RCall.jl, whose default value is FALSE to save startup time.
 #'     If a new version of R is used, then this parameter needs to be set to TRUE.
+#' @param relative_sysimage_path path to the precompiled custom sys image. Path have to be relative to JULIA_HOME directory
+#'     e.g. for default image it usually is "../lib/julia/sys.ji".
 #'
 #' @return The julia interface, which is an environment with the necessary methods
 #'   like command, source and things like that to communicate with julia.
@@ -27,12 +31,14 @@
 #' @examples
 #'
 #' \donttest{ ## julia_setup is quite time consuming
-#'   julia <- julia_setup()
+#'   julia <- julia_setup(installJulia = TRUE)
 #' }
 #'
 #' @export
 julia_setup <- function(JULIA_HOME = NULL, verbose = TRUE,
-                        install = TRUE, force = FALSE, useRCall = TRUE, rebuild = FALSE) {
+                        installJulia = FALSE,
+                        install = TRUE, force = FALSE, useRCall = TRUE,
+                        rebuild = FALSE, relative_sysimage_path = "default") {
     ## libR <- paste0(R.home(), '/lib')
     ## system(paste0('export LD_LIBRARY_PATH=', libR, ':$LD_LIBRARY_PATH'))
 
@@ -41,15 +47,30 @@ julia_setup <- function(JULIA_HOME = NULL, verbose = TRUE,
     }
 
     ## for rstudio notebook
-    notebook <- isTRUE(options()[['rstudio.notebook.executing']])
+    notebook <- check_notebook()
     ## not verbose in notebook
     verbose <- verbose && (!notebook)
 
     JULIA_HOME <- julia_locate(JULIA_HOME)
 
     if (is.null(JULIA_HOME)) {
-        stop("Julia is not found.")
+        if (isTRUE(installJulia)) {
+            install_julia()
+            JULIA_HOME <- julia_locate(JULIA_HOME)
+            if (is.null(JULIA_HOME))
+                stop("Julia is not found and automatic installation failed.")
+        }
+        else {
+            stop("Julia is not found.")
+        }
     }
+
+    img_abs_path <-normalizePath(paste(JULIA_HOME,relative_sysimage_path, sep = "/"), mustWork = F)
+
+    if(!file.exists(img_abs_path) && relative_sysimage_path != "default")
+       stop("sysimage at path: ", img_abs_path, " is not found.",
+            "you have to specify the path relative to JULA_HOME directory",
+            "which is currently: ", JULIA_HOME)
 
     .julia$bin_dir <- JULIA_HOME
 
@@ -98,7 +119,9 @@ julia_setup <- function(JULIA_HOME = NULL, verbose = TRUE,
         try(dyn.load(.julia$dll_file))
     }
 
-    juliacall_initialize(.julia$dll_file)
+    juliacall_initialize(.julia$dll_file,
+                         .julia$bin_dir,
+                         relative_sysimage_path)
 
     ## if (verbose) message("Finish Julia initiation.")
 
@@ -120,7 +143,7 @@ julia_setup <- function(JULIA_HOME = NULL, verbose = TRUE,
                       },
                   onexit = TRUE)
 
-    ##.julia$cmd(paste0('ENV["R_HOME"] = "', R.home(), '"'))
+    .julia$cmd(paste0('ENV["R_HOME"] = "', R.home(), '"'))
 
     if (verbose) message("Loading setup script for JuliaCall...")
 
@@ -197,6 +220,11 @@ julia_setup <- function(JULIA_HOME = NULL, verbose = TRUE,
     julia_command('ENV["MPLBACKEND"] = "Agg";')
 
     .julia$simple_call_ <- julia_eval("JuliaCall.simple_call")
+
+    if (.Platform$OS.type == "windows") {
+        ## needed for R to find julia dlls
+        Sys.setenv(PATH = paste0(Sys.getenv("PATH"), ";", .julia$bin_dir))
+    }
 
     invisible(julia)
 }

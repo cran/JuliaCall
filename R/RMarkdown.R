@@ -2,6 +2,10 @@ check_rmd <- function(){
     isTRUE(getOption("knitr.in.progress"))
 }
 
+check_notebook <- function(){
+    isTRUE(options()[['rstudio.notebook.executing']])
+}
+
 ## This function is used at the beginning of the julia_call interface
 ## to eraze the previous outputs
 output_reset <- function(){
@@ -45,9 +49,10 @@ begin_plot <- function(){
     else {
         number <- options$Jfig.cur
     }
+    if (is.null(options$dev)) options$dev <- "png"
     path <- knitr::fig_chunk(label = options$label,
                              ext = options$dev, number = paste0("J", number))
-    .julia$pending_plot <- knitr::include_graphics(path)
+    .julia$pending_plot <- knitr::include_graphics(path, error = FALSE)
     .julia$pending_plot_number <- number
     path
 }
@@ -61,7 +66,12 @@ finish_plot <- function(){
 ## This function is used by Julia text_display function
 ## x will be the text representation of the Julia result.
 text_display <- function(x, options = knitr::opts_current$get()){
-    julia$current_text <- x
+    if (nchar(x) > 0) {
+        julia$current_text <- paste0(x, "\n")
+    }
+    else {
+        julia$current_text <- x
+    }
 }
 
 ## This function is used by Julia @capture_out1
@@ -108,6 +118,8 @@ eng_juliacall <- function(options) {
         else julia_setup()
     }
 
+    julia_markdown_setup(notebook = check_notebook())
+
     doc <- list()
     buffer <- character()
     ss <- character()
@@ -121,8 +133,8 @@ eng_juliacall <- function(options) {
             out <- stdout_capture_command(buffer)
 
             if (options$results != 'hide' &&
-                ((length(out$stdout) > 0 && nchar(trimws(out$stdout)) > 0) ||
-                (length(out$out) > 0) && nchar(trimws(out$out)) > 0)) {
+                ((length(out$stdout) > 0 && nchar(out$stdout) > 0) ||
+                (length(out$out) > 0) && nchar(out$out) > 0)) {
                 if (length(options$echo) > 1L || options$echo) {
                     doc[[length(doc) + 1]] <- structure(list(src = ss), class = "source")
                     ss <- character()
@@ -145,7 +157,8 @@ eng_juliacall <- function(options) {
     r <- knitr::engine_output(options, out = doc)
 
     if (!isTRUE(.julia$notebook)) return(r)
-    paste0(r, collapse = "\n")
+    # paste0(r, collapse = "\n")
+    doc
 }
 
 stdout_capture_command <- function(buffer){
@@ -167,7 +180,7 @@ stdout_capture_command <- function(buffer){
 #' @param notebook whether it is in RStudio notebook environment or not.
 #'
 #' @export
-julia_markdown_setup <- function(..., notebook = FALSE){
+julia_markdown_setup <- function(..., notebook = TRUE){
     julia_setup(...)
     .julia$rmd <- TRUE
     .julia$notebook <- notebook
