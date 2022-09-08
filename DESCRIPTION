@@ -1,8 +1,8 @@
 Package: JuliaCall
 Type: Package
 Title: Seamless Integration Between R and 'Julia'
-Version: 0.17.4
-Date: 2021-05-14
+Version: 0.17.5
+Date: 2022-09-08
 Authors@R: c(
     person("Changcheng", "Li", , "cxl508@psu.edu", c("aut", "cre")),
     person("Randy", "Lai", role = "ctb"),
@@ -22,19 +22,19 @@ License: MIT + file LICENSE
 URL: https://github.com/Non-Contradiction/JuliaCall
 BugReports: https://github.com/Non-Contradiction/JuliaCall/issues
 Encoding: UTF-8
-Imports: utils, Rcpp (>= 0.12.7), knitr (>= 1.28)
-RoxygenNote: 7.1.1
+Imports: utils, Rcpp (>= 0.12.7), knitr (>= 1.28), rjson
+RoxygenNote: 7.1.2
 LinkingTo: Rcpp
 NeedsCompilation: yes
 ByteCompile: yes
 SystemRequirements: Julia >= 0.6.0, RCall.jl
-Suggests: testthat, rmarkdown, rappdirs
+Suggests: testthat, rmarkdown, rappdirs, sass
 VignetteBuilder: knitr
-Packaged: 2021-05-15 04:45:07 UTC; lch34
+Packaged: 2022-09-08 10:25:01 UTC; LiChangCheng
 Author: Changcheng Li [aut, cre],
   Randy Lai [ctb],
   Dmitri Grominski [ctb],
   Nagi Teramo [ctb]
 Maintainer: Changcheng Li <cxl508@psu.edu>
 Repository: CRAN
-Date/Publication: 2021-05-16 14:10:16 UTC
+Date/Publication: 2022-09-08 11:23:04 UTC
